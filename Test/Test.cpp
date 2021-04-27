@@ -1,6 +1,3 @@
-// Test.cpp : Diese Datei enthält die Funktion "main". Hier beginnt und endet die Ausführung des Programms.
-//
-
 #include <iostream>
 #include <Windows.h>
 #include <engine.hpp>
@@ -11,6 +8,7 @@ int main()
 	/*load*/
 	LoadLibraryA("d3d9.dll");
 	LoadLibraryA("d3d10.dll");
+	LoadLibraryA("d3d11.dll");
 
 	/*intialize it*/
 
@@ -32,7 +30,7 @@ int main()
 		}
 		else
 		{
-			std::cout << "End Scene -> " << result.func << std::endl;
+			std::cout << "End Scene [ YOU NEED TO HOOK ] -> " << result.func << std::endl;
 		}
 	}
 	
@@ -41,7 +39,6 @@ int main()
 		std::cout << "Getting D3D10!" << std::endl;
 
 		
-
 		auto result = d3dengine->GetD3D10SwapchainFunction(8);
 
 		if (result.failed)
@@ -50,11 +47,65 @@ int main()
 		}
 		else
 		{
-			std::cout << "Present -> " << result.func << std::endl;
+			std::cout << "Present [ YOU NEED TO HOOK ] -> " << result.func << std::endl;
+		}
+
+		auto result_2 = d3dengine->GetD3D10DeviceFunction(0);
+
+		if (result_2.failed)
+		{
+			std::cout << "Error Code -> " << result.errorCode << std::endl;
+		}
+		else
+		{
+			std::cout << "The first func of the Device Class -> " << result_2.func << std::endl;
 		}
 
 		
 	}
 
+	if (d3dengine->IsD3D11Present())
+	{
+		std::cout << "Getting D3D11!" << std::endl;
+
+
+		auto result = d3dengine->GetD3D11SwapchainFunction(8);
+
+		if (result.failed)
+		{
+			std::cout << "Error Code -> " << result.errorCode << std::endl;
+		}
+		else
+		{
+			std::cout << "Present [ YOU NEED TO HOOK ] -> " << result.func << std::endl;
+		}
+
+		auto result_2 = d3dengine->GetD3D11DeviceFunction(0);
+
+		if (result_2.failed)
+		{
+			std::cout << "Error Code -> " << result.errorCode << std::endl;
+		}
+		else
+		{
+			std::cout << "The first func of the Device Class -> " << result_2.func << std::endl;
+		}
+
+		auto result_3 = d3dengine->GetD3D11ContextFunction(0);
+
+		if (result_3.failed)
+		{
+			std::cout << "Error Code -> " << result_3.errorCode << std::endl;
+		}
+		else
+		{
+			std::cout << "The first func of the Context Class -> " << result_3.func << std::endl;
+
+		}
+	}
+
+	IDXGISwapChain;
+
 	while (true);
+
 }
