@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="engine">
+      <UniqueIdentifier>{4d4b5643-bd6a-418e-a4ea-7073d8f774a2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\source">
+      <UniqueIdentifier>{f804cdb7-07e4-47ef-b83d-b1089fe429ea}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="common.hpp">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine.hpp">
+      <Filter>engine</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
