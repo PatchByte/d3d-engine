@@ -105,8 +105,6 @@ int main()
 		}
 	}
 
-	IDXGISwapChain;
-
 	while (true);
 
 }
