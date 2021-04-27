@@ -20,6 +20,7 @@ int main()
 	
 	if (d3dengine->IsD3D9Present())
 	{
+		
 		std::cout << "Getting D3D9!" << std::endl;
 		auto result = d3dengine->GetD3D9DeviceFunc(42);
 
