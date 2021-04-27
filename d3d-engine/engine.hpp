@@ -26,6 +26,7 @@
 	903 -> Couldnt create the device!
 
 	1001 -> D3D10CreateDeviceAndSwapChain Function not found!
+	1002 -> Failed to create the Device and the Swapchain!
 
 */
 
@@ -39,17 +40,24 @@ namespace engine
 		int errorCode = 0;
 	};
 
-	struct D3D9EndSceneResult
+	struct D3D9GetFunctionResult
 	{
 		bool failed = false;
 		int errorCode = 0;
-		PVOID endSceneFunc = 0;
+		PVOID func = 0;
 	};
 
 	struct D3D10Result
 	{
 		bool failed = false;
 		int errorCode = 0;
+	};
+
+	struct D3D10GetSwapchainFunctionResult
+	{
+		bool failed = false;
+		int errorCode = 0;
+		PVOID func = 0;
 	};
 
 	class D3DEngine
@@ -114,8 +122,8 @@ namespace engine
 		{
 			return this->presentD3DVersions[9];
 		}
-
-		D3D9Result GetD3d9DeviceTable(int VTableSize, void** ToCopyIn)
+	private:
+		D3D9Result GetD3d9DeviceTable(void** device_table, int device_size)
 		{
 			D3D9Result result{};
 
@@ -131,8 +139,6 @@ namespace engine
 
 				return result;
 			}
-			
-			/*newest version 32*/
 
 			IDirect3D9* sdk = _Direct3DCreate9(D3D_SDK_VERSION);
 
@@ -173,7 +179,7 @@ namespace engine
 				return result;
 			}
 
-			memcpy(ToCopyIn, *reinterpret_cast<void***>(theDevice), VTableSize);
+			memcpy(device_table, *((void***)(theDevice)), device_size);
 
 
 			result.failed = false;
@@ -185,12 +191,14 @@ namespace engine
 			return result;
 
 		}
-		D3D9EndSceneResult GetD3D9EndScene()
+	public:
+		D3D9GetFunctionResult GetD3D9DeviceFunc(int index)
 		{
-			void* tableFunctions[119] = {};
-			auto firstResult = this->GetD3d9DeviceTable(sizeof(tableFunctions), tableFunctions);
+			void* tableFunctions[118] = {};
 
-			return { firstResult.failed, firstResult.errorCode, tableFunctions[42] };
+			auto firstResult = this->GetD3d9DeviceTable(tableFunctions, sizeof(tableFunctions));
+
+			return { firstResult.failed, firstResult.errorCode, tableFunctions[index] };
 		}
 #endif
 
@@ -199,6 +207,89 @@ namespace engine
 		{
 			return this->presentD3DVersions[10];
 		}
+	private:
+
+		D3D10Result GetD3D10SwapchainAndDevice(void** swapchain, void** device, int swapchain_size, int device_size)
+		{
+			D3D10Result result{};
+
+			HMODULE d3d9Mod = GetModuleHandleA("d3d10.dll");
+
+
+			if (!d3d9Mod)
+			{
+				result.failed = true;
+				result.errorCode = 1001;
+				return result;
+			}
+
+			decltype(&D3D10CreateDeviceAndSwapChain) _D3D10CreateDeviceAndSwapChain = (decltype(&D3D10CreateDeviceAndSwapChain))(GetProcAddress(d3d9Mod, "D3D10CreateDeviceAndSwapChain"));
+
+			if (!_D3D10CreateDeviceAndSwapChain)
+			{
+				result.failed = true;
+				result.errorCode = 1001;
+				return result;
+			}
+
+			DXGI_SWAP_CHAIN_DESC desc;
+			ZeroMemory(&desc, sizeof(desc));
+			desc.BufferCount = 2;
+			desc.BufferDesc.Width = 0;
+			desc.BufferDesc.Height = 0;
+			desc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+			desc.BufferDesc.RefreshRate.Numerator = 60;
+			desc.BufferDesc.RefreshRate.Denominator = 1;
+			desc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+			desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+			desc.OutputWindow = myWindow;
+			desc.SampleDesc.Count = 1;
+			desc.SampleDesc.Quality = 0;
+			desc.Windowed = true;
+			desc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+
+			IDXGISwapChain* endSwapchain = 0;
+			ID3D10Device* endDevice = 0;
+
+			if (FAILED(_D3D10CreateDeviceAndSwapChain(0, D3D10_DRIVER_TYPE_HARDWARE, NULL, 0, D3D10_SDK_VERSION, &desc, &endSwapchain, &endDevice)))
+			{
+				result.failed = true;
+				result.errorCode = 1002;
+				return result;
+			}
+
+			if (swapchain != 0)
+			{
+				memcpy(swapchain, *((void***)endSwapchain), swapchain_size);
+			}
+			if (device != 0)
+			{
+				memcpy(device, *((void***)endDevice), device_size);
+			}
+			
+
+			endDevice->Release();
+			endSwapchain->Release();
+
+			return result;
+		}
+	public:
+		D3D10GetSwapchainFunctionResult GetD3D10SwapchainFunction(int index)
+		{
+			D3D10GetSwapchainFunctionResult result{ };
+
+			void* swapchainTable[17] = {};
+
+			auto beforeResult = GetD3D10SwapchainAndDevice(swapchainTable, 0, sizeof(swapchainTable), 0);
+
+			result.failed = beforeResult.failed;
+			result.errorCode = beforeResult.errorCode;
+			result.func = swapchainTable[index];
+
+
+			return result;
+		}
+		
 #endif
 	};
 	

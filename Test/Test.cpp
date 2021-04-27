@@ -23,7 +23,7 @@ int main()
 	if (d3dengine->IsD3D9Present())
 	{
 		std::cout << "Getting D3D9!" << std::endl;
-		auto result = d3dengine->GetD3D9EndScene();
+		auto result = d3dengine->GetD3D9DeviceFunc(42);
 
 		if (result.failed)
 		{
@@ -32,15 +32,29 @@ int main()
 		}
 		else
 		{
-			std::cout << "End Scene -> " << result.endSceneFunc << std::endl;
+			std::cout << "End Scene -> " << result.func << std::endl;
 		}
 	}
 	
 	if (d3dengine->IsD3D10Present())
 	{
 		std::cout << "Getting D3D10!" << std::endl;
-	}
 
+		
+
+		auto result = d3dengine->GetD3D10SwapchainFunction(8);
+
+		if (result.failed)
+		{
+			std::cout << "Error Code -> " << result.errorCode << std::endl;
+		}
+		else
+		{
+			std::cout << "Present -> " << result.func << std::endl;
+		}
+
+		
+	}
 
 	while (true);
 }
